@@ -63,6 +63,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ParseArg.h"
 #include "YuvFileIO.h"
 
+#include "../CommonLib/storchmain.h"
+
 #define MACRO_TO_STRING_HELPER(val) #val
 #define MACRO_TO_STRING(val) MACRO_TO_STRING_HELPER(val)
 
@@ -599,6 +601,11 @@ int parse( int argc, char* argv[], vvenc_config* c, std::ostream& rcOstr )
   ("version",                                         m_showVersion,                                       "show version ")
   ;
 
+  opts.setSubSection("Storch Options");
+  opts.addOptions()
+  ("sTRACE_xCompressCU",        storch::sTRACE_xCompressCU, "Trace all calls to xCompressCU, including block position and dimension")
+  ;
+  
   opts.setSubSection("Input Options");
   if( m_easyMode)
   {

@@ -64,6 +64,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cmath>
 #include <algorithm>
 
+#include "CommonLib/storchmain.h"
+
 //! \ingroup EncoderLib
 //! \{
 
@@ -593,6 +595,11 @@ void EncCu::xCompressCU( CodingStructure*& tempCS, CodingStructure*& bestCS, Par
 
   m_modeCtrl.initBlk( tempCS->area, slice.pic->poc );
 
+  if(storch::sTRACE_xCompressCU){
+    printf("xCompressCU,POC=%d,X=%d,Y=%d,W=%d,H=%d,Part,\n", tempCS->picture->poc, tempCS->area.lx(), tempCS->area.ly(), tempCS->area.lwidth(), tempCS->area.lheight());
+  }
+    
+  
   if ((m_pcEncCfg->m_usePerceptQPA || isBimEnabled) && pps.useDQP && isLuma (partitioner.chType) && partitioner.currQgEnable())
   {
     const PreCalcValues &pcv = *pps.pcv;

@@ -57,6 +57,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vvenc/vvencCfg.h"
 
+#include "CommonLib/storchmain.h"
+
 //! \ingroup EncoderLib
 //! \{
 
@@ -342,6 +344,9 @@ void IntraSearch::xEstimateLumaRdModeList(int& numModesForFullRD,
 
   if (testMip)
   {
+    
+    storch::startIntraRmdMip();
+    
     cu.mipFlag = true;
     cu.multiRefIdx = 0;
 
@@ -383,8 +388,10 @@ void IntraSearch::xEstimateLumaRdModeList(int& numModesForFullRD,
 
     const double thresholdHadCost = 1.0 + 1.4 / sqrt((double)(cu.lwidth()*cu.lheight()));
     xReduceHadCandList(RdModeList, CandCostList, *m_SortedPelUnitBufs, numModesForFullRD, thresholdHadCost, mipHadCost, cu, fastMip);
+  
+  storch::finishIntraRmdMip();
   }
-
+  
   if( m_pcEncCfg->m_bFastUDIUseMPMEnabled )
   {
     const int numMPMs = NUM_MOST_PROBABLE_MODES;
@@ -437,6 +444,8 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, d
   static_vector<double, FAST_UDI_MAX_RDMODE_NUM> CandHadList;
 
   int numModesForFullRD = g_aucIntraModeNumFast_UseMPM_2D[Log2(width) - MIN_CU_LOG2][Log2(height) - MIN_CU_LOG2];
+  
+  // In faster/fast presets, numModesForFullRD is initially 1. It can increase based on some parameters
   if (m_pcEncCfg->m_numIntraModesFullRD > 0)
     numModesForFullRD=m_pcEncCfg->m_numIntraModesFullRD;
 
@@ -467,9 +476,13 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, d
   {
     m_ispTestedModes[0].init(0, 0, 0);
   }
-
+ 
+  storch::startIntraRmd();
+  
   xEstimateLumaRdModeList(numModesForFullRD, RdModeList, HadModeList, CandCostList, CandHadList, cu, testMip);
 
+  storch::finishIntraRmd();
+    
   CHECK( (size_t)numModesForFullRD != RdModeList.size(), "Inconsistent state!" );
 
   // after this point, don't use numModesForFullRD
@@ -558,7 +571,9 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, d
       testISP = false;
     }
   }
-
+  
+  storch::startIntraRdo();
+  
   for (int mode_cur = 0; mode_cur < EndMode + NumBDPCMCand; mode_cur++)
   {
     int mode = mode_cur;
@@ -684,7 +699,9 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, d
       }
     }
   } // Mode loop
-
+  
+  storch::finishIntraRdo();
+  
   if (m_pcEncCfg->m_FastIntraTools && (sps.ISP|| sps.LFNST || sps.MTS))
   {
     int bestMode = csBest->getTU(partitioner.chType)->mtsIdx[COMP_Y] ? 4 : 0;
