@@ -365,11 +365,32 @@ void IntraSearch::xEstimateLumaRdModeList(int& numModesForFullRD,
       cu.mipTransposedFlag = isTransposed;
       cu.intraDir[CH_L] = uiMode;
       distParam.cur.buf = piPred.buf = m_SortedPelUnitBufs->getTestBuf().Y().buf;
-      predIntraMip(piPred, cu);
 
+#if ! IMPORT_MIP_COST      
+      predIntraMip(piPred, cu);
+#endif      
+      
+
+      // Here we can load the pre-computed distortion
+      
       // Use the min between SAD and HAD as the cost criterion
       // SAD is scaled by 2 to align with the scaling of HAD
+
+#if EXPORT_MIP_COST
       Distortion minSadHad = distParam.distFunc(distParam);
+      storch::addCuCost(std::make_tuple(cu.cs->picture->poc, cu.lwidth(), cu.lheight(), cu.lx(), cu.ly(), uiModeFull), minSadHad);           
+#elif IMPORT_MIP_COST
+      Distortion temp = storch::getPrecomputedMipCost(cu.cs->picture->poc, cu.lwidth(), cu.lheight(), cu.lx(), cu.ly(), uiModeFull);
+      Distortion minSadHad = distParam.distFunc(distParam);
+      
+      if(temp != minSadHad){
+        printf("DISTORTION MISMATCH [%dx%d]@(%dx%d) -> Mode %d\n", cu.lwidth(), cu.lheight(), cu.lx(), cu.ly(), uiModeFull);
+        printf("VVenC: %ld\n", minSadHad);
+        printf("Map:   %ld\n", temp);
+      }
+#else
+      Distortion minSadHad = distParam.distFunc(distParam);
+#endif
 
       uint64_t fracModeBits = xFracModeBitsIntraLuma( cu, mpmLst );
 

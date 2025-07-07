@@ -12,6 +12,7 @@
  */
 
 #include "storchmain.h"
+#include <fstream>
 
 // CUstom input parameters 
 
@@ -21,10 +22,21 @@ double storch::rmdTime, storch::rmdMipTime, storch::rdoTime;
 
 struct timeval storch::rmd1, storch::rmd2, storch::rmdMip1, storch::rmdMip2, storch::rdo1, storch::rdo2;
 
+std::ofstream storch::mipCostsFile;
+
+std::unordered_map<IdCU, vvenc::Distortion> storch::cuCostMap;
+
 storch::storch(){
   storch::rmdTime = 0.0;
   storch::rmdMipTime = 0.0;
   storch::rdoTime = 0.0;
+  
+#if EXPORT_MIP_COST
+  mipCostsFile.open ("mipCostsFile.csv", "w");
+#elif IMPORT_MIP_COST
+  storch::importMipCosts();
+#endif
+  
 }
 
 void storch::startIntraRmd(){
@@ -52,6 +64,43 @@ void storch::startIntraRdo(){
 void storch::finishIntraRdo(){
   gettimeofday(&rdo2, NULL);
   storch::rdoTime += (double) (storch::rdo2.tv_usec - storch::rdo1.tv_usec)/1000000 + (double) (storch::rdo2.tv_sec - storch::rdo1.tv_sec);
+}
+
+void storch::addCuCost(IdCU id, vvenc::Distortion dist){
+  
+  storch::cuCostMap.emplace(id, dist);
+  
+}
+
+void storch::exportMipCosts(){
+  for(auto& pair : storch::cuCostMap){
+    storch::mipCostsFile << std::get<0>(pair.first) << "," << std::get<1>(pair.first) << "," << std::get<2>(pair.first) << "," << std::get<3>(pair.first) << "," << std::get<4>(pair.first) << "," << std::get<5>(pair.first) << "," << pair.second << std::endl;
+    
+  }
+}
+
+void storch::importMipCosts(){
+  std::ifstream infile("mipCostsFile.csv");
+  
+  std::string line;
+    while (std::getline(infile, line)) {
+      std::stringstream ss(line);
+      std::string field;
+      std::vector<int> row_data; 
+
+      while (std::getline(ss, field, ',')) {
+          row_data.push_back(stoi(field));
+        }
+      
+      IdCU data = std::make_tuple( row_data[0], row_data[1], row_data[2], row_data[3], row_data[4], row_data[5] );
+      
+     storch::cuCostMap.emplace(data, row_data[6] );
+    }  
+}
+
+vvenc::Distortion storch::getPrecomputedMipCost(int poc, int w, int h, int x, int y, int uiModeFull ){
+  IdCU id = std::make_tuple(poc, w, h, x, y, uiModeFull );
+  return storch::cuCostMap[id];
 }
 
 void storch::reportTime(){

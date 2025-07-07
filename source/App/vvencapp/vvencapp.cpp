@@ -488,6 +488,7 @@ int main( int argc, char* argv[] )
   }
 
   storch::reportTime();
+  storch::exportMipCosts();
   
   return 0;
 }

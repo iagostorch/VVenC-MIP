@@ -59,6 +59,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "EncoderLib/EncCfg.h"
 
+//                POC, W, H, X, Y, modeFull
+typedef std::tuple<int,int,int,int,int, int> IdCU;
+
 typedef vvencChromaFormat ChromaFormat;
 typedef vvencSliceType    SliceType;
 
