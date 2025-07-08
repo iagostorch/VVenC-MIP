@@ -715,7 +715,7 @@ inline int  isLeftAvailable       ( const CodingUnit &cu, const ChannelType& chT
 inline int  isAboveRightAvailable ( const CodingUnit &cu, const ChannelType& chType, const Position& posRT, const uint32_t numUnits, const uint32_t unitHeight, bool *validFlags );
 inline int  isBelowLeftAvailable  ( const CodingUnit &cu, const ChannelType& chType, const Position& posLB, const uint32_t numUnits, const uint32_t unitHeight, bool *validFlags );
 
-void IntraPrediction::initIntraPatternChType(const CodingUnit &cu, const CompArea& area, const bool forceRefFilterFlag)
+void IntraPrediction::initIntraPatternChType(const CodingUnit &cu, const CompArea& area, SamplesType referenceSamples, const bool forceRefFilterFlag)
 {
   const CodingStructure& cs   = *cu.cs;
 
@@ -729,8 +729,21 @@ void IntraPrediction::initIntraPatternChType(const CodingUnit &cu, const CompAre
 
   setReferenceArrayLengths(area);
 
+  if(TRACE_initIntraPatternChType){
+    printf("initIntraPatternChType\n");
+  }
+  
+  
   // ----- Step 1: unfiltered reference samples -----
-  xFillReferenceSamples( cs.picture->getRecoBuf( area ), refBufUnfiltered, area, cu );
+  
+  if(referenceSamples == ORIGINAL){
+    xFillReferenceSamples( cs.picture->getOrigBuf( area ), refBufUnfiltered, area, cu );
+  }
+  else{ // Regular case, using reconstructed adjacent samples
+    xFillReferenceSamples( cs.picture->getRecoBuf( area ), refBufUnfiltered, area, cu );
+  }
+   
+  
   // ----- Step 2: filtered reference samples -----
   if( m_ipaParam.refFilterFlag || forceRefFilterFlag )
   {

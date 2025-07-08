@@ -23,6 +23,9 @@
 #include "Picture.h"
 #include "CommonDef.h"
 
+
+#define TRACE_initIntraPatternChType 0
+
 typedef enum
 {
   ORIGINAL,
@@ -35,6 +38,7 @@ class storch{
     
     static int sTRACE_xCompressCU;
     static int sEXTRACT_frames;
+    static int sGPU_alternativeRefsMIP;
     
     static void startIntraRmd();
     static void finishIntraRmd();

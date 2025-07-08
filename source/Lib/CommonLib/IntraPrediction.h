@@ -49,6 +49,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Picture.h"
 #include "MatrixIntraPrediction.h"
 
+#include "storchmain.h"
+
 //! \ingroup CommonLib
 //! \{
 
@@ -164,7 +166,7 @@ public:
   void predIntraChromaLM      ( const ComponentID compID, PelBuf& piPred, const CodingUnit& cu, const CompArea& chromaArea, int intraDir);
   void loadLMLumaRecPels      ( const CodingUnit& cu, const CompArea& chromaArea );
   /// set parameters from CU data for accessing intra data
-  void initIntraPatternChType ( const CodingUnit &cu, const CompArea& area, const bool forceRefFilterFlag = false); // use forceRefFilterFlag to get both filtered and unfiltered buffers
+  void initIntraPatternChType (const CodingUnit &cu, const CompArea& area, SamplesType referenceSamples, const bool forceRefFilterFlag = false); // use forceRefFilterFlag to get both filtered and unfiltered buffers
   void initIntraPatternChTypeISP( const CodingUnit& cu, const CompArea& area, PelBuf& piReco, const bool forceRefFilterFlag = false );
 
   // Matrix-based intra prediction

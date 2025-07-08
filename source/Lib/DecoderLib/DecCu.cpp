@@ -126,7 +126,7 @@ void DecCu::xIntraRecBlk( TransformUnit& tu, const ComponentID compID )
   }
   else
   {
-    m_pcIntraPred->initIntraPatternChType( *tu.cu, area );
+    m_pcIntraPred->initIntraPatternChType( *tu.cu, area , RECONSTRUCTED );
   }
 
   //===== get prediction signal =====
@@ -308,7 +308,7 @@ void DecCu::xReconInter( CodingUnit &cu )
     {
       PelBuf ciipBuf = m_TmpBuffer.getCompactBuf( cu.Y() );
 
-      m_pcIntraPred->initIntraPatternChType(cu, cu.Y());
+      m_pcIntraPred->initIntraPatternChType(cu, cu.Y(), RECONSTRUCTED);
       m_pcIntraPred->predIntraAng(COMP_Y, ciipBuf, cu);
 
       if( cs.picHeader->lmcsEnabled && reshapeData.getCTUFlag() )
@@ -321,11 +321,11 @@ void DecCu::xReconInter( CodingUnit &cu )
       if (isChromaEnabled(cu.chromaFormat) && cu.chromaSize().width > 2)
       {
         PelBuf ciipBufC = m_TmpBuffer.getCompactBuf( cu.Cb() );
-        m_pcIntraPred->initIntraPatternChType(cu, cu.Cb());
+        m_pcIntraPred->initIntraPatternChType(cu, cu.Cb(), RECONSTRUCTED);
         m_pcIntraPred->predIntraAng(COMP_Cb, ciipBufC, cu);
         predBuf.Cb().weightCiip( ciipBufC, numCiipIntra);
 
-        m_pcIntraPred->initIntraPatternChType(cu, cu.Cr());
+        m_pcIntraPred->initIntraPatternChType(cu, cu.Cr(), RECONSTRUCTED);
         m_pcIntraPred->predIntraAng(COMP_Cr, ciipBufC, cu);
         predBuf.Cr().weightCiip( ciipBufC, numCiipIntra);
       }

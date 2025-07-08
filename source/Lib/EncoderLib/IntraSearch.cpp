@@ -217,12 +217,21 @@ void IntraSearch::xEstimateLumaRdModeList(int& numModesForFullRD,
 
   const int numHadCand = (testMip ? 2 : 1) * 3;
 
+  if(TRACE_initIntraPatternChType){
+    printf("Rough mode decision\n");
+  }
+  
   //*** Derive (regular) candidates using Hadamard
   cu.mipFlag = false;
   cu.multiRefIdx = 0;
 
   //===== init pattern for luma prediction =====
-  initIntraPatternChType(cu, cu.Y(), true);
+
+  if(TRACE_initIntraPatternChType){
+    printf("Angular modes\n");
+  }
+  
+  initIntraPatternChType(cu, cu.Y(), RECONSTRUCTED, true);
 
   bool satdChecked[NUM_INTRA_MODE] = { false };
 
@@ -311,7 +320,12 @@ void IntraSearch::xEstimateLumaRdModeList(int& numModesForFullRD,
       int multiRefIdx = MULTI_REF_LINE_IDX[mRefNum];
 
       cu.multiRefIdx = multiRefIdx;
-      initIntraPatternChType(cu, cu.Y(), true);
+      
+      if(TRACE_initIntraPatternChType){
+        printf("Multiple reference lines\n");
+      }
+        
+      initIntraPatternChType(cu, cu.Y(), RECONSTRUCTED, true);
 
       for (int x = 1; x < NUM_MOST_PROBABLE_MODES; x++)
       {
@@ -352,7 +366,17 @@ void IntraSearch::xEstimateLumaRdModeList(int& numModesForFullRD,
 
     double mipHadCost[MAX_NUM_MIP_MODE] = { MAX_DOUBLE };
 
-    initIntraPatternChType(cu, cu.Y());
+    if(TRACE_initIntraPatternChType){
+      printf("Matrix-based intra\n");
+    }
+    
+    if(storch::sGPU_alternativeRefsMIP){
+      initIntraPatternChType(cu, cu.Y(), ORIGINAL);
+    }
+    else{
+      initIntraPatternChType(cu, cu.Y(), RECONSTRUCTED);
+    }
+    
     initIntraMip( cu );
 
     const int transpOff    = getNumModesMip( cu.Y() );
@@ -527,6 +551,10 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, d
     }
   }
 
+  if(TRACE_initIntraPatternChType){
+    printf("Rate-distortion optimization\n");
+  }
+  
   //===== check modes (using r-d costs) =====
   ModeInfo bestPUMode;
 
@@ -823,8 +851,8 @@ void IntraSearch::estIntraPredChromaQT( CodingUnit& cu, Partitioner& partitioner
 
     cu.intraDir[1] = MDLM_L_IDX; // temporary assigned, just to indicate this is a MDLM mode. for luma down-sampling operation.
 
-    initIntraPatternChType(cu, cu.Cb());
-    initIntraPatternChType(cu, cu.Cr());
+    initIntraPatternChType(cu, cu.Cb(), RECONSTRUCTED);
+    initIntraPatternChType(cu, cu.Cr(), RECONSTRUCTED);
     loadLMLumaRecPels(cu, cu.Cb());
 
     for (int idx = uiMinMode; idx < uiMaxMode; idx++)
@@ -1320,7 +1348,7 @@ void IntraSearch::xIntraCodingTUBlock(TransformUnit &tu, const ComponentID compI
     }
     else if( !predBuf )
     {
-      initIntraPatternChType(*tu.cu, area);
+      initIntraPatternChType(*tu.cu, area, RECONSTRUCTED);
     }
 
     //===== get prediction signal =====
@@ -2050,8 +2078,8 @@ ChromaCbfs IntraSearch::xIntraChromaCodingQT(CodingStructure& cs, Partitioner& p
     PelBuf piPredCb = cs.getPredBuf(COMP_Cb);
     PelBuf piPredCr = cs.getPredBuf(COMP_Cr);
 
-    initIntraPatternChType(*currTU.cu, cbArea);
-    initIntraPatternChType(*currTU.cu, crArea);
+    initIntraPatternChType(*currTU.cu, cbArea, RECONSTRUCTED);
+    initIntraPatternChType(*currTU.cu, crArea, RECONSTRUCTED);
 
     if (CU::isLMCMode(predMode))
     {
@@ -2718,7 +2746,7 @@ void IntraSearch::xPreCheckMTS(TransformUnit &tu, std::vector<TrMode> *trModes, 
     PelBuf piPred = cs.getPredBuf(area);
     PelBuf piResi = cs.getResiBuf(area);
 
-    initIntraPatternChType(*tu.cu, area);
+    initIntraPatternChType(*tu.cu, area, RECONSTRUCTED);
     if (predBuf)
     {
       piPred.copyFrom(predBuf->Y());

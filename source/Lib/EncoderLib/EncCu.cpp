@@ -1874,9 +1874,9 @@ void EncCu::xCheckRDCostUnifiedMerge( CodingStructure *&tempCS, CodingStructure 
             cu->intraDir[0] = PLANAR_IDX;
             cu->intraDir[1] = DM_CHROMA_IDX;
 
-            m_cIntraSearch  . initIntraPatternChType( *cu, cu->Cb() );
+            m_cIntraSearch  . initIntraPatternChType(*cu, cu->Cb() , RECONSTRUCTED);
             m_cIntraSearch  . predIntraAng          ( COMP_Cb, ciipBuf.Cb(), *cu );
-            m_cIntraSearch  . initIntraPatternChType( *cu, cu->Cr() );
+            m_cIntraSearch  . initIntraPatternChType(*cu, cu->Cr() , RECONSTRUCTED);
             m_cIntraSearch  . predIntraAng          ( COMP_Cr, ciipBuf.Cr(), *cu );
 
             ciipChromaDone  = true;
@@ -2074,7 +2074,7 @@ void EncCu::addCiipCandsToPruningList( const MergeCtx &mergeCtx, const UnitArea 
   pu.geo         = pu.affine
                  = pu.mmvdMergeFlag = pu.mmvdSkip
                  = false;
-  m_cIntraSearch . initIntraPatternChType        ( pu, pu.Y() );
+  m_cIntraSearch . initIntraPatternChType        (pu, pu.Y() , RECONSTRUCTED);
   m_cIntraSearch . predIntraAng                  ( COMP_Y, ciipBuf.Y(), pu );
   numCiipIntra   = m_cIntraSearch.getNumIntraCiip( pu );
 

@@ -17,6 +17,7 @@
 
 int storch::sTRACE_xCompressCU;
 int storch::sEXTRACT_frames;
+int storch::sGPU_alternativeRefsMIP;
 
 double storch::rmdTime, storch::rmdMipTime, storch::rdoTime;
 
