@@ -104,7 +104,7 @@ void storch::exportSamplesFrame(vvenc::Picture* pic, SamplesType t){
     fileHandle << samples.at(w,h) << std::endl;
   }
   fileHandle.close();
-  
+}  
   
 void storch::addCuCost(IdCU id, vvenc::Distortion dist){
   
