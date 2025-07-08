@@ -407,7 +407,7 @@ struct SubPic
 
   bool             isContainingPos(const Position& pos) const
   {
-    return pos.x >= subPicLeft && pos.x <= subPicRight && pos.y >= subPicTop  && pos.y <= subPicBottom;
+    return pos.x >= (PosType) subPicLeft && pos.x <= (PosType) subPicRight && pos.y >= (PosType) subPicTop  && pos.y <= (PosType) subPicBottom;
   }
 
   void init( unsigned picWithInCtu, unsigned picHeightInCtu, unsigned picWithInSamples, unsigned picHeighthInSamples )
@@ -946,7 +946,7 @@ public:
   uint32_t               getNumTileLineIds() const // number of lines in all the tiles (each tile consisting of indepdent rows
   {
     int numTileRows = 0;
-    for( int tileIdx = 0; tileIdx < getNumTiles(); tileIdx++ ) numTileRows += getTileHeight( tileIdx );
+    for( uint32_t tileIdx = 0; tileIdx < getNumTiles(); tileIdx++ ) numTileRows += getTileHeight( tileIdx );
     return numTileRows;
   }
   uint32_t               getTileLineId( uint32_t ctuX, uint32_t ctuY ) const // unique id for a tile line at the given position

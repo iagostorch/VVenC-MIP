@@ -17,14 +17,24 @@
 #include <time.h>
 #include <sys/time.h>
 #include <string>
+#include <fstream>
+#include <string>
 
-//#define TRACE_xCompressCU 0
+#include "Picture.h"
+#include "CommonDef.h"
+
+typedef enum
+{
+  ORIGINAL,
+  RECONSTRUCTED
+} SamplesType;
 
 class storch{
   public:
     storch();
     
     static int sTRACE_xCompressCU;
+    static int sEXTRACT_frames;
     
     static void startIntraRmd();
     static void finishIntraRmd();
@@ -35,7 +45,7 @@ class storch{
     
     static void reportTime();
     
-    
+    static void exportSamplesFrame(vvenc::Picture* pic, SamplesType t);
     
   
   private:

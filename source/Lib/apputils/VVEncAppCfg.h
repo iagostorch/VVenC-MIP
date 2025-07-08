@@ -604,6 +604,7 @@ int parse( int argc, char* argv[], vvenc_config* c, std::ostream& rcOstr )
   opts.setSubSection("Storch Options");
   opts.addOptions()
   ("sTRACE_xCompressCU",        storch::sTRACE_xCompressCU, "Trace all calls to xCompressCU, including block position and dimension")
+  ("sEXTRACT_frames",           storch::sEXTRACT_frames,    "Extract the original and reconstructed frames as .csv files")
   ;
   
   opts.setSubSection("Input Options");

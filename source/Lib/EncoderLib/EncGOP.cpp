@@ -56,7 +56,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "BitAllocation.h"
 #include "EncHRD.h"
 #include "GOPCfg.h"
-
+#include "CommonLib/storchmain.h"
 #include <list>
 
 //! \ingroup EncoderLib
@@ -646,6 +646,11 @@ void EncGOP::xEncodePicture( Picture* pic, EncPicture* picEncoder )
     }
   }
 
+  
+  if(storch::sEXTRACT_frames){
+    storch::exportSamplesFrame(pic, ORIGINAL);
+    storch::exportSamplesFrame(pic, RECONSTRUCTED);
+  }  
   // finish picture encoding and cleanup
   if( m_pcEncCfg->m_numThreads > 0 )
   {
