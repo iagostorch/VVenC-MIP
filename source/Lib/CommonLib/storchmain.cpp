@@ -13,6 +13,7 @@
 
 #include "storchmain.h"
 #include <fstream>
+#include <iostream>
 
 // CUstom input parameters 
 
@@ -26,7 +27,7 @@ struct timeval storch::rmd1, storch::rmd2, storch::rmdMip1, storch::rmdMip2, sto
 
 std::ofstream storch::mipCostsFile;
 
-std::unordered_map<IdCU, vvenc::Distortion> storch::cuCostMap;
+std::unordered_map<vvenc::IdCU, vvenc::Distortion> storch::cuCostMap;
 
 storch::storch(){
   storch::rmdTime = 0.0;
@@ -34,7 +35,7 @@ storch::storch(){
   storch::rdoTime = 0.0;
   
 #if EXPORT_MIP_COST
-  mipCostsFile.open ("mipCostsFile.csv", "w");
+  mipCostsFile.open("mipCostsFile.csv", std::ofstream::out);
 #elif IMPORT_MIP_COST
   storch::importMipCosts();
 #endif
@@ -106,7 +107,7 @@ void storch::exportSamplesFrame(vvenc::Picture* pic, SamplesType t){
   fileHandle.close();
 }  
   
-void storch::addCuCost(IdCU id, vvenc::Distortion dist){
+void storch::addCuCost(vvenc::IdCU id, vvenc::Distortion dist){
   
   storch::cuCostMap.emplace(id, dist);
   
@@ -132,14 +133,14 @@ void storch::importMipCosts(){
           row_data.push_back(stoi(field));
         }
       
-      IdCU data = std::make_tuple( row_data[0], row_data[1], row_data[2], row_data[3], row_data[4], row_data[5] );
+      vvenc::IdCU data = std::make_tuple( row_data[0], row_data[1], row_data[2], row_data[3], row_data[4], row_data[5] );
       
      storch::cuCostMap.emplace(data, row_data[6] );
     }  
 }
 
 vvenc::Distortion storch::getPrecomputedMipCost(int poc, int w, int h, int x, int y, int uiModeFull ){
-  IdCU id = std::make_tuple(poc, w, h, x, y, uiModeFull );
+  vvenc::IdCU id = std::make_tuple(poc, w, h, x, y, uiModeFull );
   return storch::cuCostMap[id];
 }
 
@@ -149,4 +150,7 @@ void storch::reportTime(){
   printf("RMD Time:          %f\n", storch::rmdTime);
   printf("  RMD MIP Time:    %f\n", storch::rmdMipTime);
   printf("RDO Time:          %f\n", storch::rdoTime);
+  
+  printf("EXPORT_MIP_COST:   %d\n", EXPORT_MIP_COST);
+  printf("IMPORT_MIP_COST:   %d\n", IMPORT_MIP_COST);
 }

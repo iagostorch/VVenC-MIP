@@ -390,11 +390,15 @@ void IntraSearch::xEstimateLumaRdModeList(int& numModesForFullRD,
       cu.intraDir[CH_L] = uiMode;
       distParam.cur.buf = piPred.buf = m_SortedPelUnitBufs->getTestBuf().Y().buf;
 
-#if ! IMPORT_MIP_COST      
-      predIntraMip(piPred, cu);
-#endif      
+      // TODO: Execute this predIntraMip prediction and load the pre-computed distortion yields the correct results
+      //       But bypassing the prediction leads to differences in the encoding of upcoming blocks
+      //       We should check if we can bypass the prediction and correct the decision somehow to accelerate the encoding further
       
-
+//#if ! IMPORT_MIP_COST      
+      predIntraMip(piPred, cu);
+//#endif      
+      
+      
       // Here we can load the pre-computed distortion
       
       // Use the min between SAD and HAD as the cost criterion
@@ -403,15 +407,12 @@ void IntraSearch::xEstimateLumaRdModeList(int& numModesForFullRD,
 #if EXPORT_MIP_COST
       Distortion minSadHad = distParam.distFunc(distParam);
       storch::addCuCost(std::make_tuple(cu.cs->picture->poc, cu.lwidth(), cu.lheight(), cu.lx(), cu.ly(), uiModeFull), minSadHad);           
+      printf("Mode %d, Dist %ld\n", uiModeFull, minSadHad);
 #elif IMPORT_MIP_COST
-      Distortion temp = storch::getPrecomputedMipCost(cu.cs->picture->poc, cu.lwidth(), cu.lheight(), cu.lx(), cu.ly(), uiModeFull);
-      Distortion minSadHad = distParam.distFunc(distParam);
+
+      Distortion minSadHad = storch::getPrecomputedMipCost(cu.cs->picture->poc, cu.lwidth(), cu.lheight(), cu.lx(), cu.ly(), uiModeFull);
+      printf("Mode %d, Dist %ld\n", uiModeFull, minSadHad);
       
-      if(temp != minSadHad){
-        printf("DISTORTION MISMATCH [%dx%d]@(%dx%d) -> Mode %d\n", cu.lwidth(), cu.lheight(), cu.lx(), cu.ly(), uiModeFull);
-        printf("VVenC: %ld\n", minSadHad);
-        printf("Map:   %ld\n", temp);
-      }
 #else
       Distortion minSadHad = distParam.distFunc(distParam);
 #endif

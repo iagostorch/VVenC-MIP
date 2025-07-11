@@ -59,8 +59,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "EncoderLib/EncCfg.h"
 
-//                POC, W, H, X, Y, modeFull
-typedef std::tuple<int,int,int,int,int, int> IdCU;
 
 typedef vvencChromaFormat ChromaFormat;
 typedef vvencSliceType    SliceType;
@@ -186,6 +184,9 @@ typedef       uint64_t          SplitSeries;       ///< used to encoded the spli
 typedef       uint64_t          ModeTypeSeries;    ///< used to encoded the ModeType at different split depth
 
 typedef       uint64_t          Distortion;        ///< distortion measurement
+
+//                POC, W, H, X, Y, modeFull
+typedef std::tuple<int,int,int,int,int, int> IdCU;
 
 // ====================================================================================================================
 // Enumeration

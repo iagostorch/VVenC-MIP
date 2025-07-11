@@ -26,6 +26,7 @@
 #include <unordered_map>
 #include "Picture.h"
 #include "CommonDef.h"
+#include "TypeDef.h"
 
 
 // Code to use tuples as keys in unordered_map, copied from
@@ -107,7 +108,7 @@ class storch{
     static void startIntraRdo();
     static void finishIntraRdo();
     
-    static void addCuCost(IdCU id, vvenc::Distortion dist);
+    static void addCuCost(vvenc::IdCU id, vvenc::Distortion dist);
         
     static void reportTime();
     
@@ -123,7 +124,7 @@ class storch{
     static struct timeval rmd1, rmd2, rmdMip1, rmdMip2, rdo1, rdo2;
     static double rmdTime, rmdMipTime, rdoTime;
   
-    static std::unordered_map<IdCU, vvenc::Distortion> cuCostMap;
+    static std::unordered_map<vvenc::IdCU, vvenc::Distortion> cuCostMap;
     
     static std::ofstream mipCostsFile;
     
